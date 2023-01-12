@@ -1,7 +1,6 @@
 #include <ncurses.h>
 #include <locale.h>
 #include <wchar.h>
-
 #include <time.h>
 
 typedef long long ll;
@@ -12,35 +11,6 @@ typedef long long ll;
 
 wchar_t screen[WIDTH][HEIGHT];
 ll st, t;
-
-struct Vector2
-{
-    double x, y;
-};
-
-struct Vector2 add(struct Vector2 a, struct Vector2 b)
-{
-    struct Vector2 res = {a.x + b.x, a.y + b.y};
-    return res;
-}
-struct Vector2 sub(struct Vector2 a, struct Vector2 b)
-{
-    struct Vector2 res = {a.x - b.x, a.y - b.y};
-    return res;
-}
-struct Vector2 mul(double a, struct Vector2 b)
-{
-    struct Vector2 res = {a * b.x, a * b.y};
-    return res;
-}
-double cross(struct Vector2 a, struct Vector2 b)
-{
-    return a.x * b.y - a.y * b.x;
-}
-double dot(struct Vector2 a, struct Vector2 b)
-{
-    return a.x * b.x + a.y * b.y;
-}
 
 void draw()
 {
@@ -57,16 +27,16 @@ void render()
 {
     const wchar_t ball = L'';
     const wchar_t empty = L' ';
-    const wchar_t brick1 = L'';
+    const wchar_t brick1 = L'\uea72'; //= L'';
     const wchar_t brick2 = L'';
-    const wchar_t brickadd = L'';
-    const wchar_t brickup = L'';
+    const wchar_t brickadd = L'\uf0fe'; // L'';
+    const wchar_t brickup = L'\uf151';  // = L'';
 
     for (int i = 0; i < HEIGHT; i++)
     {
         for (int j = 0; j < WIDTH; j++)
         {
-            screen[i][j] = brick2;
+            screen[i][j] = ball;
         }
     }
 }
