@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "cwchar": "c"
+        "cwchar": "c",
+        "tuple": "c",
+        "world.h": "c",
+        "objecttype.h": "c"
     }
 }

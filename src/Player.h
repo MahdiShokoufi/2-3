@@ -6,11 +6,14 @@
 
 Struct(Player)
 {
-    double pos;
+    int pos;
+    int len;
     PowerUp decSpeed, incSpeed;
     PowerUp decBallSpeed, incBallSpeed;
     PowerUp decSize, incSize;
     PowerUp reverseInput;
 };
+
+int GetPlayerLen(Player *player);
 
 #endif

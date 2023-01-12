@@ -7,6 +7,11 @@
     typedef struct Name Name; \
     struct Name
 
-#define New(Type, Size) (Type *)malloc(sizeof(Type) * Size)
+#define Enum(Name)          \
+    enum Name;              \
+    typedef enum Name Name; \
+    enum Name
+
+#define New(Type, Size) (Type *)malloc(sizeof(Type) * (Size))
 
 #endif

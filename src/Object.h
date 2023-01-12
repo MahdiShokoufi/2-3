@@ -1,6 +1,7 @@
 #include "libGolabi.h"
 #include "Vector2.h"
-#include "SpriteType.h"
+#include "ObjectType.h"
+#include <wchar.h>
 
 #ifndef OBJECT
 #define OBJECT
@@ -12,7 +13,7 @@ Struct(Object)
     Vector2 velocity;
 
     // Rendering
-    SpriteType sprite;
+    ObjectType type;
 };
 
 #endif
