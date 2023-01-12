@@ -8,7 +8,7 @@
 Struct(World)
 {
     Player player;
-    Object *objects;
+    Object **objects;
 };
 
 #endif

@@ -14,6 +14,11 @@ enum SpriteType
     BrickAdd,
     BrickUp
 };
+
+#ifdef MAIN
+const wchar_t SpriteIcons[] = {L' ', L'', L'', L'烙', L' ', L' ', L' ', L''};
+#else
 extern const wchar_t SpriteIcons[];
+#endif
 
 #endif
