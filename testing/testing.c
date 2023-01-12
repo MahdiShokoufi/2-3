@@ -4,5 +4,7 @@
 
 int main()
 {
-    printf("%d", sizeof(wchar_t));
+    setlocale(LC_ALL, "");
+    wprintf(L"%lc", L'');
+    getchar();
 }

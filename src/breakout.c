@@ -20,23 +20,27 @@ void draw()
     {
         for (int j = 0; j < WIDTH; j++)
             printw(" %lc", screen[i][j]);
-        printw("\n");
     }
 }
+
+enum CellType
+{
+    Empty = 0,
+    Ball,
+    Brick0,
+    Brick1,
+    BrickAdd,
+    BrickUp
+};
+
+const wchar_t icons[] = {L' ', L'', L'', L'', L'', L''};
 void render()
 {
-    const wchar_t ball = L'';
-    const wchar_t empty = L' ';
-    const wchar_t brick1 = L'\uea72'; //= L'';
-    const wchar_t brick2 = L'';
-    const wchar_t brickadd = L'\uf0fe'; // L'';
-    const wchar_t brickup = L'\uf151';  // = L'';
-
     for (int i = 0; i < HEIGHT; i++)
     {
         for (int j = 0; j < WIDTH; j++)
         {
-            screen[i][j] = ball;
+            screen[i][j] = icons[rand() % 6];
         }
     }
 }
@@ -59,9 +63,9 @@ void tick(char input)
 }
 int main()
 {
+    setlocale(LC_ALL, "");
     WINDOW *wind = initscr();
     nodelay(wind, 1);
-    setlocale(LC_ALL, "");
     while (1)
     {
         tick(getch());
