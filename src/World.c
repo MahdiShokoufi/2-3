@@ -7,11 +7,11 @@
 int wgrid[WIDTH][HEIGHT];
 void SimulateWorld(World *world, double deltatime)
 {
-    for (size_t i = 0; i < world->objn; i++)
+    /// TODO
+    Object *ptr = world->objects;
+    while (ptr->nxt)
     {
-        if (world->objects[i]->type != BALL)
-        {
-        }
+        ptr = ptr->nxt;
     }
 }
 
@@ -26,6 +26,8 @@ void RenderWorld(World *world, wchar_t (*screen)[WIDTH])
         }
     }
 
+    /// TODO
+
     // static int p = 0;
     // p++;
     // p %= WIDTH * HEIGHT;
@@ -34,6 +36,16 @@ void RenderWorld(World *world, wchar_t (*screen)[WIDTH])
     // draw player
     for (int x = world->player.pos; x < GetPlayerLen(&world->player) + world->player.pos; x++)
         screen[HEIGHT - 1][x] = L'#';
+
+    Object *ptr = world->objects;
+    while (ptr->nxt)
+    {
+        ptr = ptr->nxt;
+
+        int posx = ptr->pos.x;
+        int posy = ptr->pos.y;
+        screen[posy][posx] = ObjectIcons[ptr->type];
+    }
     // for (size_t i = 0; i < world->objn; i++)
     // {
     //     screen[(int)world->objects[i]->pos.x][(int)world->objects[i]->pos.y] = ObjectIcons[world->objects[i]->type];
@@ -42,10 +54,34 @@ void RenderWorld(World *world, wchar_t (*screen)[WIDTH])
 
 void InstantiateObject(World *world, Vector2 pos, ObjectType type)
 {
+    Object *prv = world->lastobj;
+    Object *obj = world->lastobj + 1;
+
+    obj->pos = pos;
+    obj->type = type;
+
+    obj->nxt = NULL;
+    obj->prv = prv;
+    prv->nxt = obj;
+
+    world->lastobj = obj;
+}
+
+void DestroyObject(World *world, Object *obj)
+{
+    Object *nxt = obj->nxt;
+    Object *prv = obj->prv;
+    nxt->prv = prv;
+    prv->nxt = nxt;
 }
 
 void InitWorld(World *world)
 {
     world->player.len = WIDTH / 10;
     world->player.pos = (WIDTH - world->player.len) / 2;
+    world->objects = world->lastobj = New(Object, 100000);
+    world->lastobj->prv = world->lastobj->nxt = NULL;
+
+    for (int i = 0; i < 100; i++)
+        InstantiateObject(world, (Vector2){1.0 * (rand() % WIDTH), 1.0 * (rand() % (HEIGHT - 1))}, BRICK1);
 }

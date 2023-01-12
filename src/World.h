@@ -12,8 +12,8 @@
 Struct(World)
 {
     Player player;
-    Object **objects;
-    int objn;
+    Object *objects;
+    Object *lastobj;
 };
 
 void SimulateWorld(World *world, double deltatime);
