@@ -71,8 +71,10 @@ void DestroyObject(World *world, Object *obj)
 {
     Object *nxt = obj->nxt;
     Object *prv = obj->prv;
-    nxt->prv = prv;
-    prv->nxt = nxt;
+    if (nxt)
+        nxt->prv = prv;
+    if (prv)
+        prv->nxt = nxt;
 }
 
 void InitWorld(World *world)
@@ -82,6 +84,6 @@ void InitWorld(World *world)
     world->objects = world->lastobj = New(Object, 100000);
     world->lastobj->prv = world->lastobj->nxt = NULL;
 
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 2; i++)
         InstantiateObject(world, (Vector2){1.0 * (rand() % WIDTH), 1.0 * (rand() % (HEIGHT - 1))}, BRICK1);
 }
