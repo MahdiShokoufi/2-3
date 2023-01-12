@@ -28,20 +28,22 @@ enum CellType
 {
     Empty = 0,
     Ball,
+    PowerUp,
+    PlusUp,
     Brick0,
     Brick1,
     BrickAdd,
     BrickUp
 };
 
-const wchar_t icons[] = {L' ', L'', L'', L'', L'', L''};
+const wchar_t icons[] = {L' ', L'', L'', L'烙', L' ', L' ', L' ', L''};
 void render()
 {
     for (int i = 0; i < HEIGHT; i++)
     {
         for (int j = 0; j < WIDTH; j++)
         {
-            screen[i][j] = icons[rand() % 6];
+            screen[i][j] = icons[rand() % 7];
         }
     }
 }
