@@ -24,14 +24,14 @@ void RenderWorld(World *world, wchar_t (*screen)[WIDTH])
         }
     }
 
-    static int p = 0;
-    p++;
-    p %= WIDTH * HEIGHT;
-    screen[p / WIDTH][p % WIDTH] = ObjectIcons[5];
+    // static int p = 0;
+    // p++;
+    // p %= WIDTH * HEIGHT;
+    // screen[p / WIDTH][p % WIDTH] = ObjectIcons[5];
 
     // draw player
-    // for (int x = world->player.pos; x < GetPlayerLen(&world->player) + world->player.pos; x++)
-    //     screen[HEIGHT - 1][x] = L'#';
+    for (int x = world->player.pos; x < GetPlayerLen(&world->player) + world->player.pos; x++)
+        screen[HEIGHT - 1][x] = L'#';
     // for (size_t i = 0; i < world->objn; i++)
     // {
     //     screen[(int)world->objects[i]->pos.x][(int)world->objects[i]->pos.y] = ObjectIcons[world->objects[i]->type];
