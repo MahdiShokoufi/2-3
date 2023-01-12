@@ -20,6 +20,7 @@ void draw()
     {
         for (int j = 0; j < WIDTH; j++)
             printw(" %lc", screen[i][j]);
+        printw("\n");
     }
 }
 
