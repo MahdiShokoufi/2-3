@@ -20,11 +20,7 @@
             "name": "Launch Testing",
             "type": "cppdbg",
             "request": "launch",
-            "preLaunchTask": {
-                "label": "Build",
-                "type": "cppbuild",
-                "command": "${workspaceFolder}/build.sh"
-            },
+            "preLaunchTask": "Build",
             "program": "${workspaceFolder}/bin/testing.out",
             "args": [],
             "stopAtEntry": false,
