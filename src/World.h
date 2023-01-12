@@ -9,6 +9,6 @@ Struct(World)
 {
     Player player;
     Object *objects;
-}
+};
 
 #endif
