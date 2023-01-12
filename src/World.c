@@ -1,5 +1,5 @@
 #include "World.h"
-
+#include "ObjectType.h"
 #include <stdlib.h>
 
 int wgrid[WIDTH][HEIGHT];
@@ -15,7 +15,7 @@ void SimulateWorld(World *world, double deltatime)
 
 void RenderWorld(World *world, wchar_t (*screen)[WIDTH])
 {
-    // reset buffer
+    // BackGround
     for (int i = 0; i < HEIGHT; i++)
     {
         for (int j = 0; j < WIDTH; j++)

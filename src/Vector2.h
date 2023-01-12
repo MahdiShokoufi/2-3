@@ -1,7 +1,7 @@
-#include "libGolabi.h"
-
 #ifndef VECTOR2
 #define VECTOR2
+
+#include "libGolabi.h"
 
 Struct(Vector2)
 {

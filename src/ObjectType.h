@@ -1,8 +1,8 @@
-#include "libGolabi.h"
-#include <wchar.h>
-
 #ifndef OBJECTTYPE
 #define OBJECTTYPE
+
+#include "libGolabi.h"
+#include <wchar.h>
 
 Enum(ObjectType){
     EMPTY = 0,

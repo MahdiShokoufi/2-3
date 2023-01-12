@@ -5,7 +5,6 @@ Global variables Should be considered in two states : MAIN defined ⇒ real decl
 
 
 # {Name}.c Conventions:
-Only {Name}.h inlcude
 every function should have atleast one input type from {Name}.h
 
 

@@ -1,4 +1,3 @@
-
 #ifndef LIB_GOLABI
 #define LIB_GOLABI
 

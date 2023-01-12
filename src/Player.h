@@ -1,8 +1,8 @@
-#include "libGolabi.h"
-#include "PowerUp.h"
-
 #ifndef PLAYER
 #define PLAYER
+
+#include "libGolabi.h"
+#include "PowerUp.h"
 
 Struct(Player)
 {
@@ -15,5 +15,5 @@ Struct(Player)
 };
 
 int GetPlayerLen(Player *player);
-
+void HandleInput(Player *player, char input);
 #endif

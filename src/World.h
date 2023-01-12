@@ -1,11 +1,10 @@
+#ifndef WORLD
+#define WORLD
+
 #include "libGolabi.h"
 #include "Object.h"
 #include "Player.h"
-#include "ObjectType.h"
 #include <wchar.h>
-
-#ifndef WORLD
-#define WORLD
 
 #define WIDTH 60
 #define HEIGHT 30

@@ -1,10 +1,9 @@
+#ifndef OBJECT
+#define OBJECT
+
 #include "libGolabi.h"
 #include "Vector2.h"
 #include "ObjectType.h"
-#include <wchar.h>
-
-#ifndef OBJECT
-#define OBJECT
 
 Struct(Object)
 {

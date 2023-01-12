@@ -1,7 +1,7 @@
-#include "libGolabi.h"
-
 #ifndef POWERUP
 #define POWERUP
+
+#include "libGolabi.h"
 
 Struct(PowerUp)
 {

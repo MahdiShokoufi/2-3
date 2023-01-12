@@ -5,6 +5,7 @@
 #include <wchar.h>
 #include <time.h>
 #include "World.h"
+#include "Player.h"
 
 typedef long long ll;
 
@@ -38,10 +39,10 @@ void tick(char input)
 {
     t = clock() - st;
 
-    if (input == 'A' || input == 'a')
-        world.player.pos--;
-    else if (input == 'D' || input == 'd')
-        world.player.pos++;
+    if (input == 'A' || input == 'a' || input == 4)
+        HandleInput(&world.player, 'L');
+    else if (input == 'D' || input == 'd' || input == 5)
+        HandleInput(&world.player, 'R');
 
     if ((t - last) * FPS > CLOCKS_PER_SEC)
     {
@@ -55,6 +56,7 @@ int main()
 {
     setlocale(LC_ALL, "");
     WINDOW *wind = initscr();
+    keypad(wind, 1);
     nodelay(wind, 1);
 
     world.player.len = WIDTH / 10;
