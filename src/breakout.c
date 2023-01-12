@@ -34,6 +34,7 @@ World world;
 
 void update(double deltatime)
 {
+    SimulateWorld(&world, deltatime);
 }
 void tick(char input)
 {
@@ -59,8 +60,7 @@ int main()
     keypad(wind, 1);
     nodelay(wind, 1);
 
-    world.player.len = WIDTH / 10;
-    world.player.pos = (WIDTH - world.player.len) / 2;
+    InitWorld(&world);
 
     while (1)
     {

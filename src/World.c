@@ -1,5 +1,7 @@
 #include "World.h"
 #include "ObjectType.h"
+#include "Vector2.h"
+#include "ObjectType.h"
 #include <stdlib.h>
 
 int wgrid[WIDTH][HEIGHT];
@@ -36,4 +38,14 @@ void RenderWorld(World *world, wchar_t (*screen)[WIDTH])
     // {
     //     screen[(int)world->objects[i]->pos.x][(int)world->objects[i]->pos.y] = ObjectIcons[world->objects[i]->type];
     // }
+}
+
+void InstantiateObject(World *world, Vector2 pos, ObjectType type)
+{
+}
+
+void InitWorld(World *world)
+{
+    world->player.len = WIDTH / 10;
+    world->player.pos = (WIDTH - world->player.len) / 2;
 }
