@@ -19,7 +19,7 @@ void SimulateWorld(World *world, double deltatime)
         if (ptr->type >= BRICK0)
             wgrid[(int)ptr->pos.x][(int)ptr->pos.y] = 1;
     }
-    double gameSpeed = 1;
+    double gameSpeed = 5;
 
     for (Object *ptr = world->objects; ptr = ptr->nxt;)
     {
@@ -35,11 +35,21 @@ void SimulateWorld(World *world, double deltatime)
                     double y = ptr->pos.y;
                     for (;; x += dir, y += dir * ptr->velocity.y / ptr->velocity.x)
                     {
+                        if (y < 1 || y > HEIGHT - 2)
+                        {
+                            x = maxd(0, x);
+                            x = mind(WIDTH - 1, x);
+                            y = maxd(1, y);
+                            y = mind(HEIGHT - 2, y);
+                            futpos = (Vector2){x, y};
+                            ptr->velocity.y = -ptr->velocity.y;
+                            break;
+                        }
                         if (dir == 1 && x > futpos.x)
                             break;
                         if (dir == -1 && x < futpos.x)
                             break;
-                        if (x <= 0 || x >= WIDTH - 1 || wgrid[x][(int)y])
+                        if (x < 0 || x >= WIDTH)
                         {
                             x = maxd(0, x);
                             x = mind(WIDTH - 1, x);
@@ -49,6 +59,29 @@ void SimulateWorld(World *world, double deltatime)
                             ptr->velocity.x = -ptr->velocity.x;
                             break;
                         }
+                    }
+                }
+                else // VERT
+                {
+                    int dir = ptr->velocity.y > 0 ? 1 : -1;
+                    int y = (int)ptr->pos.y + dir;
+                    double x = ptr->pos.x;
+                    for (;; y += dir, x += dir * ptr->velocity.x / ptr->velocity.y)
+                    {
+                        if (x < 1 || x > WIDTH - 2)
+                        {
+                            x = maxd(1, x);
+                            x = mind(WIDTH - 2, x);
+                            y = maxd(0, y);
+                            y = mind(HEIGHT - 1, y);
+                            futpos = (Vector2){x, y};
+                            ptr->velocity.x = -ptr->velocity.x;
+                            break;
+                        }
+                        if (dir == 1 && y > futpos.y)
+                            break;
+                        if (dir == -1 && y < futpos.y)
+                            break;
                         if (y <= 0 || y >= HEIGHT - 1)
                         {
                             x = maxd(0, x);
@@ -57,40 +90,6 @@ void SimulateWorld(World *world, double deltatime)
                             y = mind(HEIGHT - 1, y);
                             futpos = (Vector2){x, y};
                             ptr->velocity.y = -ptr->velocity.y;
-                            break;
-                        }
-                    }
-                }
-                else // VERT
-                {
-                    assert(0);
-                    int dir = ptr->velocity.y > 0 ? 1 : -1;
-                    int y = (int)ptr->pos.y + dir;
-                    double x = ptr->pos.x;
-                    for (;; y += dir, x += dir * ptr->velocity.x / ptr->velocity.y)
-                    {
-                        if (dir == 1 && y > futpos.y)
-                            break;
-                        if (dir == -1 && y < futpos.y)
-                            break;
-                        if (y <= 0 || y >= HEIGHT - 1 || wgrid[(int)x][y])
-                        {
-                            x = maxd(0, x);
-                            x = mind(WIDTH - 1, x);
-                            y = maxd(0, y);
-                            y = mind(HEIGHT - 1, y);
-                            futpos = (Vector2){x, y};
-                            ptr->velocity.y = -ptr->velocity.y;
-                            break;
-                        }
-                        if (x <= 0 || x >= WIDTH - 1)
-                        {
-                            x = maxd(0, x);
-                            x = mind(WIDTH - 1, x);
-                            y = maxd(0, y);
-                            y = mind(HEIGHT - 1, y);
-                            futpos = (Vector2){x, y};
-                            ptr->velocity.x = -ptr->velocity.x;
                             break;
                         }
                     }
