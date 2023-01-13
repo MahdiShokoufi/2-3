@@ -8,6 +8,7 @@
 #include "Player.h"
 #include <math.h>
 #include <stdlib.h>
+#include <assert.h>
 
 typedef long long ll;
 
@@ -52,10 +53,10 @@ void tick(char input)
         double dir;
 
         if (rand() % 2)
-            dir = 45 + rand() % 20;
+            dir = 45 + (rand() % 10);
         else
-            dir = 135 - rand() % 20;
-        dir = dir / 360 * 3.14;
+            dir = 135 - (rand() % 10);
+        dir = dir / 180 * 3.14;
         ball->velocity = mul(10, (Vector2){cos(dir), -sin(dir)});
     }
 
