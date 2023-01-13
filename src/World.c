@@ -6,15 +6,98 @@
 #include "Utils.h"
 #include <math.h>
 #include "Vector2.h"
-
-int wgrid[WIDTH][HEIGHT];
+#include "assert.h"
 void SimulateWorld(World *world, double deltatime)
 {
+    static int wgrid[WIDTH][HEIGHT];
     /// TODO
-    double gameSpeed = 1;
+    for (int i = 0; i < WIDTH; i++)
+        for (int j = 0; j < HEIGHT; j++)
+            wgrid[i][j] = 0;
     for (Object *ptr = world->objects; ptr = ptr->nxt;)
     {
-        ptr->pos = add(ptr->pos, mul(deltatime, ptr->velocity));
+        if (ptr->type >= BRICK0)
+            wgrid[(int)ptr->pos.x][(int)ptr->pos.y] = 1;
+    }
+    double gameSpeed = 1;
+
+    for (Object *ptr = world->objects; ptr = ptr->nxt;)
+    {
+        if (ptr->type < BRICK0)
+        {
+            Vector2 futpos = add(ptr->pos, mul(deltatime * gameSpeed, ptr->velocity));
+            if (ptr->type == BALL)
+            {
+                if (abs(ptr->velocity.x) >= abs(ptr->velocity.y)) // HORIZ
+                {
+                    int dir = ptr->velocity.x > 0 ? 1 : -1;
+                    int x = ptr->pos.x + dir;
+                    double y = ptr->pos.y;
+                    for (;; x += dir, y += dir * ptr->velocity.y / ptr->velocity.x)
+                    {
+                        if (dir == 1 && x > futpos.x)
+                            break;
+                        if (dir == -1 && x < futpos.x)
+                            break;
+                        if (x <= 0 || x >= WIDTH - 1 || wgrid[x][(int)y])
+                        {
+                            x = maxd(0, x);
+                            x = mind(WIDTH - 1, x);
+                            y = maxd(0, y);
+                            y = mind(HEIGHT - 1, y);
+                            futpos = (Vector2){x, y};
+                            ptr->velocity.x = -ptr->velocity.x;
+                            break;
+                        }
+                        if (y <= 0 || y >= HEIGHT - 1)
+                        {
+                            x = maxd(0, x);
+                            x = mind(WIDTH - 1, x);
+                            y = maxd(0, y);
+                            y = mind(HEIGHT - 1, y);
+                            futpos = (Vector2){x, y};
+                            ptr->velocity.y = -ptr->velocity.y;
+                            break;
+                        }
+                    }
+                }
+                else // VERT
+                {
+                    assert(0);
+                    int dir = ptr->velocity.y > 0 ? 1 : -1;
+                    int y = (int)ptr->pos.y + dir;
+                    double x = ptr->pos.x;
+                    for (;; y += dir, x += dir * ptr->velocity.x / ptr->velocity.y)
+                    {
+                        if (dir == 1 && y > futpos.y)
+                            break;
+                        if (dir == -1 && y < futpos.y)
+                            break;
+                        if (y <= 0 || y >= HEIGHT - 1 || wgrid[(int)x][y])
+                        {
+                            x = maxd(0, x);
+                            x = mind(WIDTH - 1, x);
+                            y = maxd(0, y);
+                            y = mind(HEIGHT - 1, y);
+                            futpos = (Vector2){x, y};
+                            ptr->velocity.y = -ptr->velocity.y;
+                            break;
+                        }
+                        if (x <= 0 || x >= WIDTH - 1)
+                        {
+                            x = maxd(0, x);
+                            x = mind(WIDTH - 1, x);
+                            y = maxd(0, y);
+                            y = mind(HEIGHT - 1, y);
+                            futpos = (Vector2){x, y};
+                            ptr->velocity.x = -ptr->velocity.x;
+                            break;
+                        }
+                    }
+                }
+            }
+            ptr->pos = futpos;
+        }
     }
 }
 
@@ -107,10 +190,10 @@ void InitWorld(World *world)
 
 void GenerateMap(World *world)
 {
-    int grid[WIDTH][HEIGHT];
+    static int wgrid[WIDTH][HEIGHT];
     for (int i = 0; i < WIDTH; i++)
         for (int j = 0; j < HEIGHT; j++)
-            grid[i][j] = 0;
+            wgrid[i][j] = 0;
 
     int maxy = lerp(HEIGHT / 3, HEIGHT * 4 / 5, 1.0 - sqrt(exp(-world->turnId)));
     int maxd = lerp(WIDTH / 3, WIDTH * 2 / 3, 1.0 - sqrt(exp(-world->turnId)));
@@ -129,9 +212,9 @@ void GenerateMap(World *world)
                 break;
             }
         }
-        if (!grid[posx][posy])
+        if (!wgrid[posx][posy])
             InstantiateObject(world, (Vector2){posx, posy}, ty);
-        grid[posx][posy] = 1;
+        wgrid[posx][posy] = 1;
     }
 }
 
