@@ -49,12 +49,13 @@ void tick(char input)
     else if (input == ' ')
     {
         Object *ball = InstantiateObject(&world, (Vector2){world.player.pos + GetPlayerLen(&world.player) / 2, HEIGHT - 2}, BALL);
-        int dir;
+        double dir;
 
         if (rand() % 2)
             dir = 45 + rand() % 20;
         else
             dir = 135 - rand() % 20;
+        dir = dir / 360 * 3.14;
         ball->velocity = mul(10, (Vector2){cos(dir), -sin(dir)});
     }
 
