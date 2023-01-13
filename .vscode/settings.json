@@ -5,6 +5,7 @@
         "world.h": "c",
         "objecttype.h": "c",
         "utils.h": "c",
-        "libgolabi.h": "c"
+        "libgolabi.h": "c",
+        "object.h": "c"
     }
 }

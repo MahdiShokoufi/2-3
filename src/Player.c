@@ -5,7 +5,8 @@
 int GetPlayerLen(Player *player)
 {
     // TODO
-    return player->len;
+    int res = player->len;
+    return res + (!(res & 1));
 }
 
 void HandleInput(Player *player, char input)

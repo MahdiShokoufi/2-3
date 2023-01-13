@@ -24,7 +24,7 @@ Struct(World)
 
 void SimulateWorld(World *world, double deltatime);
 void RenderWorld(World *world, wchar_t (*screen)[WIDTH]);
-void InstantiateObject(World *world, Vector2 pos, ObjectType type);
+Object *InstantiateObject(World *world, Vector2 pos, ObjectType type);
 void OnObjectDestroyed(World *World, Object *obj);
 void DestroyObject(World *world, Object *obj);
 void ForceDestroyObject(World *world, Object *obj);

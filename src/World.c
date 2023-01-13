@@ -5,15 +5,16 @@
 #include <stdlib.h>
 #include "Utils.h"
 #include <math.h>
+#include "Vector2.h"
 
 int wgrid[WIDTH][HEIGHT];
 void SimulateWorld(World *world, double deltatime)
 {
     /// TODO
-    Object *ptr = world->objects;
-    while (ptr->nxt)
+    double gameSpeed = 1;
+    for (Object *ptr = world->objects; ptr = ptr->nxt;)
     {
-        ptr = ptr->nxt;
+        ptr->pos = add(ptr->pos, mul(deltatime, ptr->velocity));
     }
 }
 
@@ -33,18 +34,24 @@ void RenderWorld(World *world, wchar_t (*screen)[WIDTH])
         screen[HEIGHT - 1][x] = L'#';
 
     // Blocks
-    Object *ptr = world->objects;
-    while (ptr->nxt)
+    for (Object *ptr = world->objects; ptr = ptr->nxt;)
     {
-        ptr = ptr->nxt;
-
         int posx = ptr->pos.x;
         int posy = ptr->pos.y;
         screen[posy][posx] = ObjectIcons[ptr->type];
     }
+    // Object *ptr = world->objects;
+    // while (ptr->nxt)
+    // {
+    //     ptr = ptr->nxt;
+
+    //     int posx = ptr->pos.x;
+    //     int posy = ptr->pos.y;
+    //     screen[posy][posx] = ObjectIcons[ptr->type];
+    // }
 }
 
-void InstantiateObject(World *world, Vector2 pos, ObjectType type)
+Object *InstantiateObject(World *world, Vector2 pos, ObjectType type)
 {
     Object *prv = world->lastobj;
     Object *obj = world->lastobj + 1;
@@ -57,6 +64,7 @@ void InstantiateObject(World *world, Vector2 pos, ObjectType type)
     prv->nxt = obj;
 
     world->lastobj = obj;
+    return obj;
 }
 
 void ForceDestroyObject(World *world, Object *obj)

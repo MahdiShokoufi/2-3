@@ -6,6 +6,8 @@
 #include <time.h>
 #include "World.h"
 #include "Player.h"
+#include <math.h>
+#include <stdlib.h>
 
 typedef long long ll;
 
@@ -46,7 +48,14 @@ void tick(char input)
         HandleInput(&world.player, 'R');
     else if (input == ' ')
     {
-        ReGenerateMap(&world);
+        Object *ball = InstantiateObject(&world, (Vector2){world.player.pos + GetPlayerLen(&world.player) / 2, HEIGHT - 2}, BALL);
+        int dir;
+
+        if (rand() % 2)
+            dir = 45 + rand() % 20;
+        else
+            dir = 135 - rand() % 20;
+        ball->velocity = mul(10, (Vector2){cos(dir), -sin(dir)});
     }
 
     if ((t - last) * FPS > CLOCKS_PER_SEC)
