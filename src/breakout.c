@@ -13,7 +13,7 @@ typedef long long ll;
 
 #define WIDTH 60
 #define HEIGHT 30
-#define FPS 20
+#define FPS 45
 
 wchar_t screen[HEIGHT][WIDTH];
 ll st, t;

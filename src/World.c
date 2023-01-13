@@ -35,12 +35,11 @@ void SimulateWorld(World *world, double deltatime)
                     double y = ptr->pos.y;
                     for (;; x += dir, y += dir * ptr->velocity.y / ptr->velocity.x)
                     {
-                        if (y < 1 || y > HEIGHT - 2)
+                        if (y < 1 || y >= HEIGHT)
                         {
                             x = maxd(0, x);
                             x = mind(WIDTH - 1, x);
                             y = maxd(1, y);
-                            y = mind(HEIGHT - 2, y);
                             futpos = (Vector2){x, y};
                             ptr->velocity.y = -ptr->velocity.y;
                             break;
@@ -54,7 +53,6 @@ void SimulateWorld(World *world, double deltatime)
                             x = maxd(0, x);
                             x = mind(WIDTH - 1, x);
                             y = maxd(0, y);
-                            y = mind(HEIGHT - 1, y);
                             futpos = (Vector2){x, y};
                             ptr->velocity.x = -ptr->velocity.x;
                             break;
@@ -73,7 +71,6 @@ void SimulateWorld(World *world, double deltatime)
                             x = maxd(1, x);
                             x = mind(WIDTH - 2, x);
                             y = maxd(0, y);
-                            y = mind(HEIGHT - 1, y);
                             futpos = (Vector2){x, y};
                             ptr->velocity.x = -ptr->velocity.x;
                             break;
@@ -82,12 +79,11 @@ void SimulateWorld(World *world, double deltatime)
                             break;
                         if (dir == -1 && y < futpos.y)
                             break;
-                        if (y <= 0 || y >= HEIGHT - 1)
+                        if (y <= 0 || y >= HEIGHT)
                         {
                             x = maxd(0, x);
                             x = mind(WIDTH - 1, x);
                             y = maxd(0, y);
-                            y = mind(HEIGHT - 1, y);
                             futpos = (Vector2){x, y};
                             ptr->velocity.y = -ptr->velocity.y;
                             break;
@@ -96,6 +92,11 @@ void SimulateWorld(World *world, double deltatime)
                 }
             }
             ptr->pos = futpos;
+
+            if (ptr->pos.y >= HEIGHT)
+            {
+                DestroyObject(world, ptr);
+            }
         }
     }
 }
@@ -168,11 +169,12 @@ void DestroyObject(World *world, Object *obj)
 {
     Object *nxt = obj->nxt;
     Object *prv = obj->prv;
-    if (nxt)
-        nxt->prv = prv;
     if (prv)
         prv->nxt = nxt;
-    world->lastobj = prv;
+    if (nxt)
+        nxt->prv = prv;
+    else
+        world->lastobj = prv;
 
     OnObjectDestroyed(world, obj);
 }
