@@ -7,4 +7,6 @@ int maxd(double a, double b);
 int mini(int a, int b);
 int mind(double a, double b);
 
+double lerp(double a, double b, double t);
+
 #endif

@@ -11,14 +11,25 @@
 
 Struct(World)
 {
+    // World State
     Player player;
     Object *objects;
     Object *lastobj;
+    int turnId;
+    int isStarted;
+
+    // Score State
+    /// TODO
 };
 
 void SimulateWorld(World *world, double deltatime);
 void RenderWorld(World *world, wchar_t (*screen)[WIDTH]);
 void InstantiateObject(World *world, Vector2 pos, ObjectType type);
+void OnObjectDestroyed(World *World, Object *obj);
+void DestroyObject(World *world, Object *obj);
+void ForceDestroyObject(World *world, Object *obj);
 void InitWorld(World *world);
+void GenerateMap(World *world);
+void ReGenerateMap(World *world);
 
 #endif

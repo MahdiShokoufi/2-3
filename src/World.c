@@ -3,6 +3,8 @@
 #include "Vector2.h"
 #include "ObjectType.h"
 #include <stdlib.h>
+#include "Utils.h"
+#include <math.h>
 
 int wgrid[WIDTH][HEIGHT];
 void SimulateWorld(World *world, double deltatime)
@@ -26,17 +28,11 @@ void RenderWorld(World *world, wchar_t (*screen)[WIDTH])
         }
     }
 
-    /// TODO
-
-    // static int p = 0;
-    // p++;
-    // p %= WIDTH * HEIGHT;
-    // screen[p / WIDTH][p % WIDTH] = ObjectIcons[5];
-
-    // draw player
+    // Player
     for (int x = world->player.pos; x < GetPlayerLen(&world->player) + world->player.pos; x++)
         screen[HEIGHT - 1][x] = L'#';
 
+    // Blocks
     Object *ptr = world->objects;
     while (ptr->nxt)
     {
@@ -46,10 +42,6 @@ void RenderWorld(World *world, wchar_t (*screen)[WIDTH])
         int posy = ptr->pos.y;
         screen[posy][posx] = ObjectIcons[ptr->type];
     }
-    // for (size_t i = 0; i < world->objn; i++)
-    // {
-    //     screen[(int)world->objects[i]->pos.x][(int)world->objects[i]->pos.y] = ObjectIcons[world->objects[i]->type];
-    // }
 }
 
 void InstantiateObject(World *world, Vector2 pos, ObjectType type)
@@ -67,6 +59,21 @@ void InstantiateObject(World *world, Vector2 pos, ObjectType type)
     world->lastobj = obj;
 }
 
+void ForceDestroyObject(World *world, Object *obj)
+{
+    Object *nxt = obj->nxt;
+    Object *prv = obj->prv;
+    if (nxt)
+        nxt->prv = prv;
+    if (prv)
+        prv->nxt = nxt;
+    world->lastobj = prv;
+}
+void OnObjectDestroyed(World *World, Object *obj)
+{
+    /// TODO
+}
+
 void DestroyObject(World *world, Object *obj)
 {
     Object *nxt = obj->nxt;
@@ -75,6 +82,9 @@ void DestroyObject(World *world, Object *obj)
         nxt->prv = prv;
     if (prv)
         prv->nxt = nxt;
+    world->lastobj = prv;
+
+    OnObjectDestroyed(world, obj);
 }
 
 void InitWorld(World *world)
@@ -84,6 +94,44 @@ void InitWorld(World *world)
     world->objects = world->lastobj = New(Object, 100000);
     world->lastobj->prv = world->lastobj->nxt = NULL;
 
-    for (int i = 0; i < 2; i++)
-        InstantiateObject(world, (Vector2){1.0 * (rand() % WIDTH), 1.0 * (rand() % (HEIGHT - 1))}, BRICK1);
+    GenerateMap(world);
+}
+
+void GenerateMap(World *world)
+{
+    int grid[WIDTH][HEIGHT];
+    for (int i = 0; i < WIDTH; i++)
+        for (int j = 0; j < HEIGHT; j++)
+            grid[i][j] = 0;
+
+    int maxy = lerp(HEIGHT / 3, HEIGHT * 4 / 5, 1.0 - sqrt(exp(-world->turnId)));
+    int maxd = lerp(WIDTH / 3, WIDTH * 2 / 3, 1.0 - sqrt(exp(-world->turnId)));
+    world->turnId++;
+
+    for (int i = 0; i < maxy * maxd; i++)
+    {
+        int posx = rand() % WIDTH, posy = rand() % maxy, ty = rand() % 100;
+        // WRand
+        for (int i = 0; i <= ObjectTypeCnt; i++)
+        {
+            ty -= ObjectProb[i];
+            if (ty <= 0)
+            {
+                ty = i;
+                break;
+            }
+        }
+        if (!grid[posx][posy])
+            InstantiateObject(world, (Vector2){posx, posy}, ty);
+        grid[posx][posy] = 1;
+    }
+}
+
+void ReGenerateMap(World *world)
+{
+    while (world->lastobj != world->objects)
+    {
+        ForceDestroyObject(world, world->lastobj);
+    }
+    GenerateMap(world);
 }

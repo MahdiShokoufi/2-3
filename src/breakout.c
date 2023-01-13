@@ -44,6 +44,10 @@ void tick(char input)
         HandleInput(&world.player, 'L');
     else if (input == 'D' || input == 'd' || input == 5)
         HandleInput(&world.player, 'R');
+    else if (input == ' ')
+    {
+        ReGenerateMap(&world);
+    }
 
     if ((t - last) * FPS > CLOCKS_PER_SEC)
     {
