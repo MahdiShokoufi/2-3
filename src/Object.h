@@ -21,6 +21,7 @@ Struct(Object)
 
     // Gameplay
     int health;
+    int spell;
 };
 
 #endif

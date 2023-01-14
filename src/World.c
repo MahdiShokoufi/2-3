@@ -14,7 +14,8 @@ FILE *dbg;
 void OnBallHit(World *world, Object *block)
 {
     // assert(0);
-    DestroyObject(world, block);
+    if (--block->health <= 0)
+        DestroyObject(world, block);
 }
 int ValidX(int x)
 {
@@ -128,7 +129,7 @@ void SimulateWorld(World *world, double deltatime)
     // player
 
     for (int x = world->player.pos; x < GetPlayerLen(&world->player) + world->player.pos; x++)
-        wgrid[x][HEIGHT - 1] = 1;
+        wgrid[x][HEIGHT - 1] = wgrid[x][HEIGHT - 2] = 1;
 
     // world
     for (Object *ptr = world->objects; ptr = ptr->nxt;)
@@ -136,7 +137,7 @@ void SimulateWorld(World *world, double deltatime)
         if (ptr->type >= BRICK0)
             wgrid[(int)ptr->pos.x][(int)ptr->pos.y] = ptr;
     }
-    double gameSpeed = 1;
+    double gameSpeed = lerp(1, 2.5, 1 - 1 / world->turnId);
 
     for (Object *ptr = world->objects; ptr = ptr->nxt;)
     {
@@ -176,7 +177,7 @@ void RenderWorld(World *world, wchar_t (*screen)[WIDTH])
 
     // Player
     for (int x = world->player.pos; x < GetPlayerLen(&world->player) + world->player.pos; x++)
-        screen[HEIGHT - 1][x] = L'#';
+        screen[HEIGHT - 1][x] = screen[HEIGHT - 2][x] = L'#';
 
     // Blocks
     for (Object *ptr = world->objects; ptr = ptr->nxt;)
@@ -204,6 +205,12 @@ Object *InstantiateObject(World *world, Vector2 pos, ObjectType type)
     obj->pos = pos;
     obj->type = type;
 
+    if (obj->type >= BRICK0)
+        obj->health = 1 + rand() % 2;
+    if (obj->type == BRICK1)
+        obj->health *= 2;
+    // obj->health = 1;
+
     obj->exist = 1;
     obj->nxt = NULL;
     obj->prv = prv;
@@ -230,9 +237,33 @@ void ForceDestroyObject(World *world, Object *obj)
         world->lastobj = prv;
     obj->exist = 0;
 }
-void OnObjectDestroyed(World *World, Object *obj)
+void OnObjectDestroyed(World *world, Object *obj)
 {
     /// TODO
+    Object *pw = NULL;
+    switch (obj->type)
+    {
+    case BRICK_ADD:
+        pw = InstantiateObject(world, obj->pos, POWER_ADD);
+        break;
+    case BRICK_UP:
+        pw = InstantiateObject(world, obj->pos, POWER_UP);
+        break;
+    case BRICK_DWN:
+        pw = InstantiateObject(world, obj->pos, POWER_DWN);
+        break;
+    case BRICK_RND:
+        if (rand() % 2)
+            pw = InstantiateObject(world, obj->pos, POWER_UP);
+        else
+            pw = InstantiateObject(world, obj->pos, POWER_UP);
+        break;
+    }
+    if (pw)
+    {
+
+        pw->velocity = (Vector2){0, 1};
+    }
 }
 
 void DestroyObject(World *world, Object *obj)
@@ -283,7 +314,7 @@ void GenerateMap(World *world)
         for (int i = 0; i <= ObjectTypeCnt; i++)
         {
             ty -= ObjectProb[i];
-            if (ty <= 0)
+            if (ty < 0)
             {
                 ty = i;
                 break;
@@ -302,4 +333,18 @@ void ReGenerateMap(World *world)
         ForceDestroyObject(world, world->lastobj);
     }
     GenerateMap(world);
+}
+
+void ShootBall(World *world)
+{
+    Object *ball = InstantiateObject(world, (Vector2){0.1 + world->player.pos + GetPlayerLen(&world->player) / 2, HEIGHT - 2 - 0.1}, BALL);
+    double dir;
+
+    if (rand() % 2)
+        dir = 45 + (rand() % 10);
+    else
+        dir = 135 - (rand() % 10);
+    // dir = 90;
+    dir = dir / 180 * 3.14;
+    ball->velocity = mul(10, (Vector2){cos(dir), -sin(dir)});
 }
