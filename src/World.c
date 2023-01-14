@@ -9,10 +9,20 @@
 #include "assert.h"
 #include "stdio.h"
 
+FILE *dbg;
+
 void OnBallHit(World *world, Object *block)
 {
     // assert(0);
     DestroyObject(world, block);
+}
+int ValidX(int x)
+{
+    return x >= 0 && x < WIDTH;
+}
+int ValidY(int y)
+{
+    return y >= 0 && y < HEIGHT;
 }
 Object *Travel(Object *obj, Vector2 dst, Object *wgrid[WIDTH][HEIGHT])
 {
@@ -49,7 +59,7 @@ Object *Travel(Object *obj, Vector2 dst, Object *wgrid[WIDTH][HEIGHT])
         {
             // assert(0);
 
-            if (wgrid[(int)obj->pos.x][(int)obj->pos.y + (dy > 0 ? 1 : -1)])
+            if (ValidX((int)obj->pos.x) && ValidY((int)obj->pos.y + (dy > 0 ? 1 : -1)) && wgrid[(int)obj->pos.x][(int)obj->pos.y + (dy > 0 ? 1 : -1)])
             {
                 obj->velocity.y = -obj->velocity.y;
                 return wgrid[(int)obj->pos.x][(int)obj->pos.y + (dy > 0 ? 1 : -1)];
@@ -64,12 +74,17 @@ Object *Travel(Object *obj, Vector2 dst, Object *wgrid[WIDTH][HEIGHT])
             }
             if (obj->pos.y >= HEIGHT - 1)
                 return NULL;
+            if (obj->pos.x <= 0 || obj->pos.x >= WIDTH - 1)
+            {
+                obj->velocity.x = -obj->velocity.x;
+                return NULL;
+            }
         }
         else
         {
             // assert(0);
 
-            if (wgrid[(int)obj->pos.x + (dx > 0 ? 1 : -1)][(int)obj->pos.y])
+            if (ValidX((int)obj->pos.x + (dx > 0 ? 1 : -1)) && ValidY((int)obj->pos.y) && wgrid[(int)obj->pos.x + (dx > 0 ? 1 : -1)][(int)obj->pos.y])
             {
                 obj->velocity.x = -obj->velocity.x;
                 return wgrid[(int)obj->pos.x + (dx > 0 ? 1 : -1)][(int)obj->pos.y];
@@ -77,7 +92,14 @@ Object *Travel(Object *obj, Vector2 dst, Object *wgrid[WIDTH][HEIGHT])
 
             obj->pos.y += dxy * 1.001;
             obj->pos.x += dx * 1.001;
-            if (obj->pos.x <= 0 || obj->pos.x >= WIDTH - 2)
+            if (obj->pos.y <= 0)
+            {
+                obj->velocity.y = -obj->velocity.y;
+                return NULL;
+            }
+            if (obj->pos.y >= HEIGHT - 1)
+                return NULL;
+            if (obj->pos.x <= 0 || obj->pos.x >= WIDTH - 1)
             {
                 obj->velocity.x = -obj->velocity.x;
                 return NULL;
@@ -89,6 +111,8 @@ Object *Travel(Object *obj, Vector2 dst, Object *wgrid[WIDTH][HEIGHT])
 
 void SimulateWorld(World *world, double deltatime)
 {
+    dbg = fopen("log.txt", "w");
+
     static Object *wgrid[WIDTH][HEIGHT];
     /// TODO
     for (int i = 0; i < WIDTH; i++)
@@ -108,9 +132,15 @@ void SimulateWorld(World *world, double deltatime)
             Vector2 futpos = add(ptr->pos, mul(deltatime * gameSpeed, ptr->velocity));
             if (ptr->type == BALL)
             {
+                fprintf(dbg, "*1\n");
+                fflush(dbg);
                 Object *wall = Travel(ptr, futpos, wgrid);
+                fprintf(dbg, "*2\n");
+                fflush(dbg);
                 if (wall)
                     OnBallHit(world, wall);
+                fprintf(dbg, "*3\n");
+                fflush(dbg);
             }
             else
             {
@@ -123,6 +153,7 @@ void SimulateWorld(World *world, double deltatime)
             }
         }
     }
+    fclose(dbg);
 }
 
 void RenderWorld(World *world, wchar_t (*screen)[WIDTH])
@@ -177,6 +208,8 @@ Object *InstantiateObject(World *world, Vector2 pos, ObjectType type)
 
 void ForceDestroyObject(World *world, Object *obj)
 {
+    if (!obj)
+        return;
     if (!obj->exist)
         return;
 
@@ -197,8 +230,12 @@ void OnObjectDestroyed(World *World, Object *obj)
 
 void DestroyObject(World *world, Object *obj)
 {
-    if (!obj->exist)
+    if (!obj)
         return;
+    if (!(obj->exist))
+        return;
+
+    OnObjectDestroyed(world, obj);
 
     Object *nxt = obj->nxt;
     Object *prv = obj->prv;
@@ -209,8 +246,6 @@ void DestroyObject(World *world, Object *obj)
     else
         world->lastobj = prv;
     obj->exist = 0;
-
-    OnObjectDestroyed(world, obj);
 }
 
 void InitWorld(World *world)
