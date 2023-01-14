@@ -261,7 +261,14 @@ void OnObjectDestroyed(World *world, Object *obj)
     }
     if (pw)
     {
-
+        if (pw->type == POWER_UP)
+        {
+            pw->spell = 1 + rand() % 3;
+        }
+        else if (pw->type == POWER_DWN)
+        {
+            pw->spell = 5 + rand() % 4;
+        }
         pw->velocity = (Vector2){0, 1};
     }
 }
