@@ -31,5 +31,6 @@ void ForceDestroyObject(World *world, Object *obj);
 void InitWorld(World *world);
 void GenerateMap(World *world);
 void ReGenerateMap(World *world);
+void ShootBall(World *world);
 
 #endif
