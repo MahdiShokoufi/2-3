@@ -67,18 +67,20 @@ Object *Travel(Object *obj, Vector2 dst, Object *wgrid[WIDTH][HEIGHT])
 
             obj->pos.y += dy * 1.001;
             obj->pos.x += dyx * 1.001;
+
+            int cng = 0;
             if (obj->pos.y <= 0)
             {
                 obj->velocity.y = -obj->velocity.y;
-                return NULL;
+                cng = 1;
             }
-            if (obj->pos.y >= HEIGHT - 1)
-                return NULL;
             if (obj->pos.x <= 0 || obj->pos.x >= WIDTH - 1)
             {
                 obj->velocity.x = -obj->velocity.x;
-                return NULL;
+                cng = 1;
             }
+            if (cng || obj->pos.y >= HEIGHT - 1)
+                return NULL;
         }
         else
         {
@@ -92,18 +94,20 @@ Object *Travel(Object *obj, Vector2 dst, Object *wgrid[WIDTH][HEIGHT])
 
             obj->pos.y += dxy * 1.001;
             obj->pos.x += dx * 1.001;
+
+            int cng = 0;
             if (obj->pos.y <= 0)
             {
                 obj->velocity.y = -obj->velocity.y;
-                return NULL;
+                cng = 1;
             }
-            if (obj->pos.y >= HEIGHT - 1)
-                return NULL;
             if (obj->pos.x <= 0 || obj->pos.x >= WIDTH - 1)
             {
                 obj->velocity.x = -obj->velocity.x;
-                return NULL;
+                cng = 1;
             }
+            if (cng || obj->pos.y >= HEIGHT - 1)
+                return NULL;
         }
     }
     return NULL;
