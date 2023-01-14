@@ -10,6 +10,7 @@ Struct(Object)
     // Linked list
     Object *prv;
     Object *nxt;
+    int exist;
 
     // Physics
     Vector2 pos;

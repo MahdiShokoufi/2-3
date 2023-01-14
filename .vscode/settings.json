@@ -6,6 +6,7 @@
         "objecttype.h": "c",
         "utils.h": "c",
         "libgolabi.h": "c",
-        "object.h": "c"
+        "object.h": "c",
+        "math.h": "c"
     }
 }

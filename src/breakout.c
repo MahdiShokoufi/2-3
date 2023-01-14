@@ -12,8 +12,6 @@
 
 typedef long long ll;
 
-#define WIDTH 60
-#define HEIGHT 30
 #define FPS 45
 
 wchar_t screen[HEIGHT][WIDTH];
@@ -49,13 +47,14 @@ void tick(char input)
         HandleInput(&world.player, 'R');
     else if (input == ' ')
     {
-        Object *ball = InstantiateObject(&world, (Vector2){world.player.pos + GetPlayerLen(&world.player) / 2, HEIGHT - 2}, BALL);
+        Object *ball = InstantiateObject(&world, (Vector2){0.1 + world.player.pos + GetPlayerLen(&world.player) / 2, HEIGHT - 2 - 0.1}, BALL);
         double dir;
 
         if (rand() % 2)
             dir = 45 + (rand() % 10);
         else
             dir = 135 - (rand() % 10);
+        // dir = 90;
         dir = dir / 180 * 3.14;
         ball->velocity = mul(10, (Vector2){cos(dir), -sin(dir)});
     }

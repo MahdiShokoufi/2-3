@@ -7,17 +7,97 @@
 #include <math.h>
 #include "Vector2.h"
 #include "assert.h"
+#include "stdio.h"
+
+void OnBallHit(World *world, Object *block)
+{
+    // assert(0);
+    DestroyObject(world, block);
+}
+Object *Travel(Object *obj, Vector2 dst, Object *wgrid[WIDTH][HEIGHT])
+{
+    while (1)
+    {
+
+        // fprintf(file, "%lf,%lf -> %lf,%lf\n", obj->pos.x, obj->pos.y, dst.x, dst.y);
+        if ((int)obj->pos.x == (int)dst.x && (int)obj->pos.y == (int)dst.y)
+        {
+            obj->pos = dst;
+            return NULL;
+        }
+
+        Vector2 delta = sub(dst, obj->pos);
+
+        double dx = 0;
+        if ((int)obj->pos.x < (int)dst.x)
+            dx = fmax((int)(obj->pos.x + 1) - obj->pos.x, 0.001);
+        else if ((int)obj->pos.x > (int)dst.x)
+            dx = fmin(((int)obj->pos.x) - obj->pos.x, -0.001);
+        double dxy = dx / delta.x * delta.y;
+
+        double dy = 0;
+        if ((int)obj->pos.y < (int)dst.y)
+            dy = fmax((int)(obj->pos.y + 1) - obj->pos.y, 0.001);
+        else if ((int)obj->pos.y > (int)dst.y)
+            dy = fmin(((int)obj->pos.y) - obj->pos.y, -0.001);
+        double dyx = dy / delta.y * delta.x;
+
+        // fprintf(file, "%lf,%lf => %lf,%lf == %lf,%lf , %lf,%lf   ", obj->pos.x, obj->pos.y, dst.x, dst.y, dx, dxy, dyx, dy);
+        // fflush(file);
+
+        if ((int)obj->pos.x == (int)dst.x || ((int)obj->pos.y != (int)dst.y && fabs(dyx) <= fabs(dx)))
+        {
+            // assert(0);
+
+            if (wgrid[(int)obj->pos.x][(int)obj->pos.y + (dy > 0 ? 1 : -1)])
+            {
+                obj->velocity.y = -obj->velocity.y;
+                return wgrid[(int)obj->pos.x][(int)obj->pos.y + (dy > 0 ? 1 : -1)];
+            }
+
+            obj->pos.y += dy * 1.001;
+            obj->pos.x += dyx * 1.001;
+            if (obj->pos.y <= 0)
+            {
+                obj->velocity.y = -obj->velocity.y;
+                return NULL;
+            }
+            if (obj->pos.y >= HEIGHT - 1)
+                return NULL;
+        }
+        else
+        {
+            // assert(0);
+
+            if (wgrid[(int)obj->pos.x + (dx > 0 ? 1 : -1)][(int)obj->pos.y])
+            {
+                obj->velocity.x = -obj->velocity.x;
+                return wgrid[(int)obj->pos.x + (dx > 0 ? 1 : -1)][(int)obj->pos.y];
+            }
+
+            obj->pos.y += dxy * 1.001;
+            obj->pos.x += dx * 1.001;
+            if (obj->pos.x <= 0 || obj->pos.x >= WIDTH - 2)
+            {
+                obj->velocity.x = -obj->velocity.x;
+                return NULL;
+            }
+        }
+    }
+    return NULL;
+}
+
 void SimulateWorld(World *world, double deltatime)
 {
-    static int wgrid[WIDTH][HEIGHT];
+    static Object *wgrid[WIDTH][HEIGHT];
     /// TODO
     for (int i = 0; i < WIDTH; i++)
         for (int j = 0; j < HEIGHT; j++)
-            wgrid[i][j] = 0;
+            wgrid[i][j] = NULL;
     for (Object *ptr = world->objects; ptr = ptr->nxt;)
     {
         if (ptr->type >= BRICK0)
-            wgrid[(int)ptr->pos.x][(int)ptr->pos.y] = 1;
+            wgrid[(int)ptr->pos.x][(int)ptr->pos.y] = ptr;
     }
     double gameSpeed = 5;
 
@@ -28,72 +108,16 @@ void SimulateWorld(World *world, double deltatime)
             Vector2 futpos = add(ptr->pos, mul(deltatime * gameSpeed, ptr->velocity));
             if (ptr->type == BALL)
             {
-                if (abs(ptr->velocity.x) >= abs(ptr->velocity.y)) // HORIZ
-                {
-                    int dir = ptr->velocity.x > 0 ? 1 : -1;
-                    int x = ptr->pos.x + dir;
-                    double y = ptr->pos.y;
-                    for (;; x += dir, y += dir * ptr->velocity.y / ptr->velocity.x)
-                    {
-                        if (y < 1 || y >= HEIGHT)
-                        {
-                            x = maxd(0, x);
-                            x = mind(WIDTH - 1, x);
-                            y = maxd(1, y);
-                            futpos = (Vector2){x, y};
-                            ptr->velocity.y = -ptr->velocity.y;
-                            break;
-                        }
-                        if (dir == 1 && x > futpos.x)
-                            break;
-                        if (dir == -1 && x < futpos.x)
-                            break;
-                        if (x < 0 || x >= WIDTH)
-                        {
-                            x = maxd(0, x);
-                            x = mind(WIDTH - 1, x);
-                            y = maxd(0, y);
-                            futpos = (Vector2){x, y};
-                            ptr->velocity.x = -ptr->velocity.x;
-                            break;
-                        }
-                    }
-                }
-                else // VERT
-                {
-                    int dir = ptr->velocity.y > 0 ? 1 : -1;
-                    int y = (int)ptr->pos.y + dir;
-                    double x = ptr->pos.x;
-                    for (;; y += dir, x += dir * ptr->velocity.x / ptr->velocity.y)
-                    {
-                        if (x < 1 || x > WIDTH - 2)
-                        {
-                            x = maxd(1, x);
-                            x = mind(WIDTH - 2, x);
-                            y = maxd(0, y);
-                            futpos = (Vector2){x, y};
-                            ptr->velocity.x = -ptr->velocity.x;
-                            break;
-                        }
-                        if (dir == 1 && y > futpos.y)
-                            break;
-                        if (dir == -1 && y < futpos.y)
-                            break;
-                        if (y <= 0 || y >= HEIGHT)
-                        {
-                            x = maxd(0, x);
-                            x = mind(WIDTH - 1, x);
-                            y = maxd(0, y);
-                            futpos = (Vector2){x, y};
-                            ptr->velocity.y = -ptr->velocity.y;
-                            break;
-                        }
-                    }
-                }
+                Object *wall = Travel(ptr, futpos, wgrid);
+                if (wall)
+                    OnBallHit(world, wall);
             }
-            ptr->pos = futpos;
+            else
+            {
+                ptr->pos = futpos;
+            }
 
-            if (ptr->pos.y >= HEIGHT)
+            if (ptr->pos.y >= HEIGHT - 1)
             {
                 DestroyObject(world, ptr);
             }
@@ -142,6 +166,7 @@ Object *InstantiateObject(World *world, Vector2 pos, ObjectType type)
     obj->pos = pos;
     obj->type = type;
 
+    obj->exist = 1;
     obj->nxt = NULL;
     obj->prv = prv;
     prv->nxt = obj;
@@ -152,21 +177,9 @@ Object *InstantiateObject(World *world, Vector2 pos, ObjectType type)
 
 void ForceDestroyObject(World *world, Object *obj)
 {
-    Object *nxt = obj->nxt;
-    Object *prv = obj->prv;
-    if (nxt)
-        nxt->prv = prv;
-    if (prv)
-        prv->nxt = nxt;
-    world->lastobj = prv;
-}
-void OnObjectDestroyed(World *World, Object *obj)
-{
-    /// TODO
-}
+    if (!obj->exist)
+        return;
 
-void DestroyObject(World *world, Object *obj)
-{
     Object *nxt = obj->nxt;
     Object *prv = obj->prv;
     if (prv)
@@ -175,6 +188,27 @@ void DestroyObject(World *world, Object *obj)
         nxt->prv = prv;
     else
         world->lastobj = prv;
+    obj->exist = 0;
+}
+void OnObjectDestroyed(World *World, Object *obj)
+{
+    /// TODO
+}
+
+void DestroyObject(World *world, Object *obj)
+{
+    if (!obj->exist)
+        return;
+
+    Object *nxt = obj->nxt;
+    Object *prv = obj->prv;
+    if (prv)
+        prv->nxt = nxt;
+    if (nxt)
+        nxt->prv = prv;
+    else
+        world->lastobj = prv;
+    obj->exist = 0;
 
     OnObjectDestroyed(world, obj);
 }
