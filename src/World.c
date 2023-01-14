@@ -328,7 +328,7 @@ void InitWorld(World *world)
     world->turnId = 0;
     world->ttime = 0;
 
-    GenerateMap(world);
+    // GenerateMap(world);
 }
 
 void GenerateMap(World *world)

@@ -9,6 +9,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "ObjectType.h"
 
 typedef long long ll;
 
@@ -48,7 +49,18 @@ void tick(char input)
         HandleInput(&world.player, 'R', world.ttime);
     else if (input == ' ')
     {
-        ShootBall(&world);
+        if (!world.isStarted)
+            ShootBall(&world), world.isStarted = 1;
+    }
+
+    int blk = 0;
+    for (Object *ptr = world.objects; ptr = ptr->nxt;)
+    {
+        blk += ptr->type >= BRICK0;
+    }
+    if (blk == 0)
+    {
+        GenerateMap(&world);
     }
 
     if ((t - last) * FPS > CLOCKS_PER_SEC)
