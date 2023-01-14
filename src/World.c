@@ -18,10 +18,12 @@ void OnBallHit(World *world, Object *block)
 }
 int ValidX(int x)
 {
+    fprintf(dbg, "check x:%d\n", x);
     return x >= 0 && x < WIDTH;
 }
 int ValidY(int y)
 {
+    fprintf(dbg, "check y:%d\n", y);
     return y >= 0 && y < HEIGHT;
 }
 Object *Travel(Object *obj, Vector2 dst, Object *wgrid[WIDTH][HEIGHT])
@@ -115,19 +117,26 @@ Object *Travel(Object *obj, Vector2 dst, Object *wgrid[WIDTH][HEIGHT])
 
 void SimulateWorld(World *world, double deltatime)
 {
-    dbg = fopen("log.txt", "w");
+    dbg = fopen("log.txt", "a");
 
     static Object *wgrid[WIDTH][HEIGHT];
-    /// TODO
+
     for (int i = 0; i < WIDTH; i++)
         for (int j = 0; j < HEIGHT; j++)
             wgrid[i][j] = NULL;
+
+    // player
+
+    for (int x = world->player.pos; x < GetPlayerLen(&world->player) + world->player.pos; x++)
+        wgrid[x][HEIGHT - 1] = 1;
+
+    // world
     for (Object *ptr = world->objects; ptr = ptr->nxt;)
     {
         if (ptr->type >= BRICK0)
             wgrid[(int)ptr->pos.x][(int)ptr->pos.y] = ptr;
     }
-    double gameSpeed = 5;
+    double gameSpeed = 1;
 
     for (Object *ptr = world->objects; ptr = ptr->nxt;)
     {
@@ -136,15 +145,9 @@ void SimulateWorld(World *world, double deltatime)
             Vector2 futpos = add(ptr->pos, mul(deltatime * gameSpeed, ptr->velocity));
             if (ptr->type == BALL)
             {
-                fprintf(dbg, "*1\n");
-                fflush(dbg);
                 Object *wall = Travel(ptr, futpos, wgrid);
-                fprintf(dbg, "*2\n");
-                fflush(dbg);
-                if (wall)
+                if (wall > 1)
                     OnBallHit(world, wall);
-                fprintf(dbg, "*3\n");
-                fflush(dbg);
             }
             else
             {
