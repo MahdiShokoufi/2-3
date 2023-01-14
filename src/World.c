@@ -8,6 +8,7 @@
 #include "Vector2.h"
 #include "assert.h"
 #include "stdio.h"
+#include "Player.h"
 
 FILE *dbg;
 
@@ -19,12 +20,10 @@ void OnBallHit(World *world, Object *block)
 }
 int ValidX(int x)
 {
-    fprintf(dbg, "check x:%d\n", x);
     return x >= 0 && x < WIDTH;
 }
 int ValidY(int y)
 {
-    fprintf(dbg, "check y:%d\n", y);
     return y >= 0 && y < HEIGHT;
 }
 Object *Travel(Object *obj, Vector2 dst, Object *wgrid[WIDTH][HEIGHT])
@@ -118,7 +117,8 @@ Object *Travel(Object *obj, Vector2 dst, Object *wgrid[WIDTH][HEIGHT])
 
 void SimulateWorld(World *world, double deltatime)
 {
-    dbg = fopen("log.txt", "a");
+    dbg = fopen("log.txt", "w");
+    fprintf(dbg, " %lf ", world->ttime);
 
     static Object *wgrid[WIDTH][HEIGHT];
 
@@ -128,7 +128,7 @@ void SimulateWorld(World *world, double deltatime)
 
     // player
 
-    for (int x = world->player.pos; x < GetPlayerLen(&world->player) + world->player.pos; x++)
+    for (int x = world->player.pos; x < GetPlayerLen(&world->player, world->ttime) + world->player.pos; x++)
         wgrid[x][HEIGHT - 1] = wgrid[x][HEIGHT - 2] = 1;
 
     // world
@@ -138,6 +138,11 @@ void SimulateWorld(World *world, double deltatime)
             wgrid[(int)ptr->pos.x][(int)ptr->pos.y] = ptr;
     }
     double gameSpeed = lerp(1, 2.5, 1 - 1 / world->turnId);
+
+    if (isActive(world->player.incSpeed, world->ttime))
+        gameSpeed *= 2;
+    if (isActive(world->player.decSpeed, world->ttime))
+        gameSpeed /= 2;
 
     for (Object *ptr = world->objects; ptr = ptr->nxt;)
     {
@@ -155,6 +160,14 @@ void SimulateWorld(World *world, double deltatime)
                 ptr->pos = futpos;
             }
 
+            if (ptr->type > BALL)
+            {
+                if (wgrid[(int)ptr->pos.x][(int)ptr->pos.y] == 1)
+                {
+                    HandleSpell(world, ptr->spell);
+                    DestroyObject(world, ptr);
+                }
+            }
             if (ptr->pos.y >= HEIGHT - 1)
             {
                 DestroyObject(world, ptr);
@@ -176,7 +189,7 @@ void RenderWorld(World *world, wchar_t (*screen)[WIDTH])
     }
 
     // Player
-    for (int x = world->player.pos; x < GetPlayerLen(&world->player) + world->player.pos; x++)
+    for (int x = world->player.pos; x < GetPlayerLen(&world->player, world->ttime) + world->player.pos; x++)
         screen[HEIGHT - 1][x] = screen[HEIGHT - 2][x] = L'#';
 
     // Blocks
@@ -267,7 +280,11 @@ void OnObjectDestroyed(World *world, Object *obj)
         }
         else if (pw->type == POWER_DWN)
         {
-            pw->spell = 5 + rand() % 4;
+            pw->spell = 4 + rand() % 4;
+        }
+        else
+        {
+            pw->spell = 8;
         }
         pw->velocity = (Vector2){0, 1};
     }
@@ -296,9 +313,20 @@ void DestroyObject(World *world, Object *obj)
 void InitWorld(World *world)
 {
     world->player.len = WIDTH / 10;
+
+    world->player.decBallSpeed =
+        world->player.decSize =
+            world->player.decSpeed =
+                world->player.incBallSpeed =
+                    world->player.incSize =
+                        world->player.incSpeed =
+                            (PowerUp){0};
+
     world->player.pos = (WIDTH - world->player.len) / 2;
     world->objects = world->lastobj = New(Object, 100000);
     world->lastobj->prv = world->lastobj->nxt = NULL;
+    world->turnId = 0;
+    world->ttime = 0;
 
     GenerateMap(world);
 }
@@ -344,7 +372,7 @@ void ReGenerateMap(World *world)
 
 void ShootBall(World *world)
 {
-    Object *ball = InstantiateObject(world, (Vector2){0.1 + world->player.pos + GetPlayerLen(&world->player) / 2, HEIGHT - 2 - 0.1}, BALL);
+    Object *ball = InstantiateObject(world, (Vector2){0.1 + world->player.pos + GetPlayerLen(&world->player, world->ttime) / 2, HEIGHT - 2 - 0.1}, BALL);
     double dir;
 
     if (rand() % 2)
@@ -354,4 +382,43 @@ void ShootBall(World *world)
     // dir = 90;
     dir = dir / 180 * 3.14;
     ball->velocity = mul(10, (Vector2){cos(dir), -sin(dir)});
+}
+
+void HandleSpell(World *world, int spell)
+{
+    const double DURATION = 15;
+    switch (spell)
+    {
+    case 1:
+        world->player.decBallSpeed.endtime = world->ttime + DURATION;
+        break;
+    case 2:
+        world->player.incSize.endtime = world->ttime + DURATION;
+        break;
+    case 3:
+        world->player.incSpeed.endtime = world->ttime + DURATION;
+        break;
+
+    case 4:
+        world->player.incBallSpeed.endtime = world->ttime + DURATION;
+        break;
+    case 5:
+        world->player.decSize.endtime = world->ttime + DURATION;
+        break;
+    case 6:
+        world->player.decSpeed.endtime = world->ttime + DURATION;
+        break;
+    case 7:
+        world->player.reverseInput.endtime = world->ttime + DURATION;
+        break;
+
+    case 8:
+        ShootBall(world);
+        ShootBall(world);
+        ShootBall(world);
+        break;
+
+    default:
+        break;
+    }
 }

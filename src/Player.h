@@ -14,6 +14,6 @@ Struct(Player)
     PowerUp reverseInput;
 };
 
-int GetPlayerLen(Player *player);
-void HandleInput(Player *player, char input);
+int GetPlayerLen(Player *player, double ttime);
+void HandleInput(Player *player, char input, double ttime);
 #endif

@@ -35,6 +35,7 @@ World world;
 
 void update(double deltatime)
 {
+    world.ttime += deltatime;
     SimulateWorld(&world, deltatime);
 }
 void tick(char input)
@@ -42,9 +43,9 @@ void tick(char input)
     t = clock() - st;
 
     if (input == 'A' || input == 'a' || input == 4)
-        HandleInput(&world.player, 'L');
+        HandleInput(&world.player, 'L', world.ttime);
     else if (input == 'D' || input == 'd' || input == 5)
-        HandleInput(&world.player, 'R');
+        HandleInput(&world.player, 'R', world.ttime);
     else if (input == ' ')
     {
         ShootBall(&world);

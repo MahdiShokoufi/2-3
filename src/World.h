@@ -16,6 +16,7 @@ Struct(World)
     Object *objects;
     Object *lastobj;
     int turnId;
+    double ttime;
     int isStarted;
 
     // Score State
@@ -32,5 +33,6 @@ void InitWorld(World *world);
 void GenerateMap(World *world);
 void ReGenerateMap(World *world);
 void ShootBall(World *world);
+void HandleSpell(World *world, int spell);
 
 #endif

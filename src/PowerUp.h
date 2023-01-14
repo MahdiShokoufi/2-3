@@ -8,4 +8,6 @@ Struct(PowerUp)
     double endtime;
 };
 
+int isActive(PowerUp p, double ttime);
+
 #endif
